@@ -9,8 +9,8 @@ import (
 
 const (
 	progName = "Pokedex"
-	helpMsg  = "Displays a help message"
-	exitMsg  = "Exit the pokedex"
+	helpDesc = "Displays a help message"
+	exitDesc = "Exit the pokedex"
 )
 
 type cmd struct {
@@ -23,37 +23,50 @@ var validCmd = make(map[string]cmd)
 
 var input string
 var scanner *bufio.Scanner
-var prompt = fmt.Sprintf("%s > ", strings.ToLower(progName))
+var prompt string = fmt.Sprintf("%s > ", strings.ToLower(progName))
+var usageMsg string
 
 func main() {
 	scanner = bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print(prompt)
 		scanner.Scan()
-		input = scanner.Text()
+		input = strings.ToLower(scanner.Text())
 
 		switch input {
-		case "q":
-			fmt.Println("Come back again soon!")
+		case "exit":
 			os.Exit(0)
-		case "h":
-			fmt.Println(validCmd["help"].description)
+		case "help":
+			fmt.Fprint(os.Stdout, usageMsg)
+		default:
+			fmt.Fprint(os.Stdout, usageMsg)
 		}
+
 	}
 }
 
 func init() {
 	validCmd["help"] = cmd{
 		name:        "help",
-		description: helpMsg,
+		description: helpDesc,
 		callback:    helpCmd,
 	}
 
 	validCmd["exit"] = cmd{
 		name:        "exit",
-		description: exitMsg,
+		description: exitDesc,
 		callback:    exitCmd,
 	}
+
+	usageMsg = fmt.Sprintf(`Welcome to the %s!
+Usage:
+
+%s: %s
+%s: %s
+
+`, progName,
+		validCmd["help"].name, validCmd["help"].description,
+		validCmd["exit"].name, validCmd["exit"].description)
 }
 
 func helpCmd() error {
