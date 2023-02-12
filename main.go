@@ -9,7 +9,17 @@ import (
 
 const (
 	progName = "Pokedex"
+	helpMsg  = "Displays a help message"
+	exitMsg  = "Exit the pokedex"
 )
+
+type cmd struct {
+	name        string
+	description string
+	callback    func() error
+}
+
+var validCmd = make(map[string]cmd)
 
 var input string
 var scanner *bufio.Scanner
@@ -27,7 +37,29 @@ func main() {
 			fmt.Println("Come back again soon!")
 			os.Exit(0)
 		case "h":
-			fmt.Println("help message")
+			fmt.Println(validCmd["help"].description)
 		}
 	}
+}
+
+func init() {
+	validCmd["help"] = cmd{
+		name:        "help",
+		description: helpMsg,
+		callback:    helpCmd,
+	}
+
+	validCmd["exit"] = cmd{
+		name:        "exit",
+		description: exitMsg,
+		callback:    exitCmd,
+	}
+}
+
+func helpCmd() error {
+	return nil
+}
+
+func exitCmd() error {
+	return nil
 }
