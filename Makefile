@@ -5,3 +5,6 @@ build:
 
 run: build
 	@$(bin)
+
+clean:
+	go mod tidy
