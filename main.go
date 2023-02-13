@@ -18,9 +18,9 @@ const (
 )
 
 type cmd struct {
-	name        string
-	description string
-	callback    func() error
+	Name        string
+	Description string
+	Callback    func() error
 	mapLoc
 }
 
@@ -30,11 +30,12 @@ type mapLoc struct {
 }
 
 var validCmd = make(map[string]cmd)
+var mapNextCmd *cmd
+var mapPrevCmd *cmd
+var helpCmd *cmd
+var exitCmd *cmd
 
 var URL = "https://pokeapi.co/api/v2/location/"
-
-var mapNextCmd cmd
-var mapPrevCmd cmd
 
 var input string
 var scanner *bufio.Scanner
@@ -81,8 +82,8 @@ func main() {
 }
 
 func init() {
-	help := addCmd("help", helpDesc, helpCB)
-	exit := addCmd("exit", exitDesc, exitCB)
+	helpCmd = addCmd("help", helpDesc, helpCB)
+	exitCmd = addCmd("exit", exitDesc, exitCB)
 	mapNextCmd = addCmd("map",
 		"Shows next 20 locations areas of the Pokemon world", mapCB)
 	mapPrevCmd = addCmd("mapb",
@@ -96,20 +97,20 @@ Usage:
 %s: %s
 
 `, progName,
-		help.name, help.description,
-		exit.name, exit.description,
-		mapNextCmd.name, mapNextCmd.description)
+		helpCmd.Name, helpCmd.Description,
+		exitCmd.Name, exitCmd.Description,
+		mapNextCmd.Name, mapNextCmd.Description)
 }
 
-func addCmd(name string, desc string, cb func() error) cmd {
-	name = strings.ToLower(name)
-	validCmd[name] = cmd{
-		name:        name,
-		description: desc,
-		callback:    cb,
+func addCmd(name string, desc string, cb func() error) *cmd {
+	c := &cmd{
+		Name:        strings.ToLower(name),
+		Description: desc,
+		Callback:    cb,
 	}
+	validCmd[name] = *c
 
-	return validCmd[name]
+	return c
 }
 
 func helpCB() error {
