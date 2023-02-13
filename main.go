@@ -15,7 +15,6 @@ const (
 	progName = "Pokedex"
 	helpDesc = "Displays a help message"
 	exitDesc = "Exit the pokedex"
-	URL      = "https://pokeapi.co/api/v2/location/"
 )
 
 type cmd struct {
@@ -31,6 +30,8 @@ type mapLoc struct {
 }
 
 var validCmd = make(map[string]cmd)
+
+var URL = "https://pokeapi.co/api/v2/location/"
 
 var mapNextCmd cmd
 var mapPrevCmd cmd
@@ -70,6 +71,8 @@ func main() {
 			for _, l := range locs.Results {
 				fmt.Fprintln(os.Stdout, string(*l.Name))
 			}
+
+			URL = mapNextCmd.Next
 		default:
 			fmt.Fprint(os.Stdout, usageMsg)
 		}
@@ -90,10 +93,12 @@ Usage:
 
 %s: %s
 %s: %s
+%s: %s
 
 `, progName,
 		help.name, help.description,
-		exit.name, exit.description)
+		exit.name, exit.description,
+		mapNextCmd.name, mapNextCmd.description)
 }
 
 func addCmd(name string, desc string, cb func() error) cmd {
