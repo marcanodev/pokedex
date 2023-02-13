@@ -7,9 +7,9 @@ import (
 )
 
 type Locations struct {
-	Count   int         `json:"count"`
-	Next    *string     `json:"next"`
-	Prev    interface{} `json:"previous"`
+	Count   int     `json:"count"`
+	Next    *string `json:"next"`
+	Prev    *string `json:"previous"`
 	Results []struct {
 		Name *string `json:"name"`
 		Url  *string `json:"url"`

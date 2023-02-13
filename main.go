@@ -25,8 +25,27 @@ type cmd struct {
 }
 
 type mapLoc struct {
-	Next string
-	Prev interface{}
+	Next *string
+	Prev *string
+}
+
+func (m *mapLoc) Request(url *string) (l *api.Locations, e error) {
+	l = &api.Locations{}
+
+	if url != nil {
+		data, err := api.GetJSON(*url)
+
+		if err != nil {
+			e = err
+		}
+
+		err = json.Unmarshal(data, l)
+		if err != nil {
+			e = err
+		}
+	}
+
+	return
 }
 
 var validCmd = make(map[string]cmd)
@@ -55,25 +74,28 @@ func main() {
 		case "help":
 			fmt.Fprint(os.Stdout, usageMsg)
 		case "map":
-			locs := &api.Locations{}
-			data, err := api.GetJSON(URL)
-
-			if err != nil {
+			locs, err := mapNextCmd.Request(&URL)
+			if err != nil && locs.Count <= 0 {
 				log.Fatal(err)
 			}
 
-			err = json.Unmarshal(data, locs)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			mapNextCmd.Next = *locs.Next
+			mapNextCmd.Next = locs.Next
 			mapPrevCmd.Prev = locs.Prev
 			for _, l := range locs.Results {
 				fmt.Fprintln(os.Stdout, string(*l.Name))
 			}
 
-			URL = mapNextCmd.Next
+			URL = *mapNextCmd.Next
+		case "mapb":
+			locs, err := mapPrevCmd.Request(mapPrevCmd.Prev)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			mapPrevCmd.Prev = locs.Prev
+			for _, l := range locs.Results {
+				fmt.Fprintln(os.Stdout, string(*l.Name))
+			}
 		default:
 			fmt.Fprint(os.Stdout, usageMsg)
 		}
