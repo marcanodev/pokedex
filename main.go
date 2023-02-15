@@ -49,8 +49,8 @@ func (m *mapLoc) Request(url *string) (l *api.Payload, e error) {
 }
 
 var validCmd = make(map[string]cmd)
-var mapNextCmd *cmd
-var mapPrevCmd *cmd
+var _map *cmd
+var mapB *cmd
 var helpCmd *cmd
 var exitCmd *cmd
 
@@ -74,26 +74,26 @@ func main() {
 		case "help":
 			fmt.Fprint(os.Stdout, usageMsg)
 		case "map":
-			locs, err := mapNextCmd.Request(&URL)
-			if err != nil && locs.Count <= 0 {
+			resp, err := _map.Request(&URL)
+			if err != nil && resp.Count <= 0 {
 				log.Fatal(err)
 			}
 
-			mapNextCmd.Next = locs.Next
-			mapPrevCmd.Prev = locs.Prev
-			for _, l := range locs.Results {
+			_map.Next = resp.Next
+			mapB.Prev = resp.Prev
+			for _, l := range resp.Results {
 				fmt.Fprintln(os.Stdout, string(*l.Name))
 			}
 
-			URL = *mapNextCmd.Next
+			URL = *_map.Next
 		case "mapb":
-			locs, err := mapPrevCmd.Request(mapPrevCmd.Prev)
+			resp, err := mapB.Request(mapB.Prev)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			mapPrevCmd.Prev = locs.Prev
-			for _, l := range locs.Results {
+			mapB.Prev = resp.Prev
+			for _, l := range resp.Results {
 				fmt.Fprintln(os.Stdout, string(*l.Name))
 			}
 		default:
@@ -106,9 +106,9 @@ func main() {
 func init() {
 	helpCmd = addCmd("help", helpDesc, helpCB)
 	exitCmd = addCmd("exit", exitDesc, exitCB)
-	mapNextCmd = addCmd("map",
+	_map = addCmd("map",
 		"Shows next 20 locations areas of the Pokemon world", mapCB)
-	mapPrevCmd = addCmd("mapb",
+	mapB = addCmd("mapb",
 		"Shows the prev 20 locations of the Pokemon world", mapCB)
 
 	usageMsg = fmt.Sprintf(`Welcome to the %s!
@@ -117,11 +117,13 @@ Usage:
 %s: %s
 %s: %s
 %s: %s
+%s: %s
 
 `, progName,
 		helpCmd.Name, helpCmd.Description,
 		exitCmd.Name, exitCmd.Description,
-		mapNextCmd.Name, mapNextCmd.Description)
+		_map.Name, _map.Description,
+		mapB.Name, mapB.Description)
 }
 
 func addCmd(name string, desc string, cb func() error) *cmd {
