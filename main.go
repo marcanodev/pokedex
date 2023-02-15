@@ -29,8 +29,8 @@ type mapLoc struct {
 	Prev *string
 }
 
-func (m *mapLoc) Request(url *string) (l *api.Locations, e error) {
-	l = &api.Locations{}
+func (m *mapLoc) Request(url *string) (l *api.Payload, e error) {
+	l = &api.Payload{}
 
 	if url != nil {
 		data, err := api.GetJSON(*url)

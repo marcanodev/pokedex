@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type Locations struct {
+type Payload struct {
 	Count   int     `json:"count"`
 	Next    *string `json:"next"`
 	Prev    *string `json:"previous"`
